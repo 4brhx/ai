@@ -6,6 +6,7 @@ import type { NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
     const cookieStore = cookies();
@@ -21,17 +22,21 @@ export async function GET(request: NextRequest) {
             cookieStore.set({ name, value, ...options });
           },
           remove(name: string, options: CookieOptions) {
-            cookieStore.delete({ name, ...options });
+            cookieStore.set({ name, value: "", ...options });
           },
         },
       }
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
     if (!error) {
-      return NextResponse.redirect(`${origin}/dashboard`);
+      return NextResponse.redirect(`${origin}${next}`);
     }
+
+    console.error("Auth callback error:", error.message);
   }
 
+  // اذا صار خطأ، يرجع لصفحة تسجيل الدخول مع رسالة خطأ
   return NextResponse.redirect(`${origin}/login?error=auth_failed`);
 }
