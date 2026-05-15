@@ -39,7 +39,6 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // تحديث الجلسة حتى ما تنتهي
   await supabase.auth.getUser();
 
   return response;
