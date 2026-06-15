@@ -17,7 +17,11 @@ export async function POST(request: NextRequest) {
           cookieStore.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
-          cookieStore.delete({ name, ...options });
+          try {
+            cookieStore.set({ name, value: '', ...options });
+          } catch (error) {
+            // ignore
+          }
         },
       },
     }
